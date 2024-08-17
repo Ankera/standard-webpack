@@ -22,7 +22,10 @@ module.exports = {
     port: "3000", // 启动服务器端口号
     open: true, // 是否自动打开浏览器
     proxy: {
-      
+      "/api": {
+        target: "https://open.duyidu.com",
+        changeOrigin: true, // 更改请求头中的 host 和 origin
+      },
     }
   },
   plugins: [

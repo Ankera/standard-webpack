@@ -39,15 +39,39 @@ module.exports = {
     setupMiddlewares: require('./mock.js'),
   },
   resolve: {
-    extensions: [".jsx", ".js", ".tsx", ".ts"],
+    extensions: [".jsx", ".js", ".tsx", ".ts", ".json"],
     alias: {
       "@": path.join(__dirname, "./src"),
       // 'common-variables': path.resolve(__dirname, 'common/css/variable.less'),
     },
-    // modules: [path.resolve("node_modules")], // 指定去本项目 node_modules 查找模块，不允许向上查找，全局
+    modules: [path.resolve("node_modules")], // 指定去本项目 node_modules 查找模块，不允许向上查找，全局
   },
+  // 找loader的解析路径
+  // resolveLoader: {
+  //   modules: ['loaders', 'node_modules']
+  // },
   module: {
+    // noParse: /lodash/,
     rules: [
+      {
+        test: /\.(js|jsx|ts|tsx)$/, // 匹配.ts, tsx文件
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'thread-loader',
+            options: {
+              workers: 3
+            }
+          },
+          {
+            loader: "babel-loader",
+            // options: {
+            //   // 预设执行顺序由右往左,所以先处理ts,再处理jsx
+            //   presets: ["@babel/preset-react", "@babel/preset-typescript"],
+            // },
+          },
+        ]
+      },
       {
         test: /isarray\.js/,
         use: [
@@ -150,6 +174,12 @@ module.exports = {
     // new webpack.ProvidePlugin({
     //   isarray: "isarray"
     // })
+
+    // 忽略 moment 模块下的 locale 资源
+    new webpack.IgnorePlugin({
+        contextRegExp: /moment$/,
+        resourceRegExp: /locale/
+    })
   ],
 };
 

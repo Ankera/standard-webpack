@@ -36,6 +36,7 @@ module.exports = {
     //     changeOrigin: true, // 更改请求头中的 host 和 origin
     //   },
     // },
+    setupMiddlewares: require('./mock.js'),
   },
   resolve: {
     extensions: [".jsx", ".js", ".tsx", ".ts"],
@@ -140,7 +141,8 @@ module.exports = {
     }),
 
     new webpack.DefinePlugin({
-      'process.env.N_ENV': JSON.stringify(process.env.N_ENV)
+      'process.env.N_ENV': JSON.stringify(process.env.N_ENV),
+      '__insert_blade__': "INSERT_BLADE_01"
     }),
 
     // 每个 tsx 文件自动引入 import isarray from 'isarray';

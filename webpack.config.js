@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  // devtool: "source-map",
+  devtool: "source-map",
   entry: {
     main: "./index.js",
   },
@@ -22,7 +22,7 @@ module.exports = {
   devServer: {
     host: "localhost", // 启动服务器域名
     port: "3000", // 启动服务器端口号
-    open: true, // 是否自动打开浏览器
+    // open: true, // 是否自动打开浏览器
     // proxy: {
     //   "/api": {
     //     target: "https://open.duyidu.com",
@@ -58,11 +58,52 @@ module.exports = {
               // import: false,
               modules: true,
               // sourceMap: true,
-              esModule: false
+              esModule: false,
+              // importLoaders: 0
             },
           },
-          "less-loader"
+          "postcss-loader",
+          "less-loader",
         ],
+      },
+      {
+        test: /.(png|jpg|jpeg|gif|svg)$/, // 匹配图片文件
+        /**
+         *
+         */
+        type: "asset", // type选择asset
+        parser: {
+          dataUrlCondition: {
+            maxSize: 1 * 1024, // 小于10kb转base64位
+          },
+        },
+        generator: {
+          filename: "static/images/[hash:8]_[name][ext]", // 文件输出目录和命名
+        },
+      },
+      {
+        test: /.(woff2?|eot|ttf|otf)$/, // 匹配字体图标文件
+        type: "asset", // type选择asset
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024, // 小于10kb转base64位
+          },
+        },
+        generator: {
+          filename: "static/fonts/[name][ext]", // 文件输出目录和命名
+        },
+      },
+      {
+        test: /.(mp4|webm|ogg|mp3|wav|flac|aac)$/, // 匹配媒体文件
+        type: "asset", // type选择asset
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024, // 小于10kb转base64位
+          },
+        },
+        generator: {
+          filename: "static/media/[name][ext]", // 文件输出目录和命名
+        },
       },
     ],
   },

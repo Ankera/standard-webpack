@@ -1,0 +1,11 @@
+@import url("./base.css");
+
+body {
+  background-color: aqua;
+  /* background: url(~image/demo.png); */
+}
+
+.someClass {
+  color: red;
+  font-size: 24px;
+}

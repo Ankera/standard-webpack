@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const WebpackBar = require("webpackbar");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -11,8 +12,14 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     // filename: 'bundle.[hash:5].js',
-    clean: true, // 在生成文件之前清空 output 目录
+    clean: true, // webpack4需要配置clean-webpack-plugin来删除dist文件,webpack5内置了
     publicPath: "/",
+  },
+  externals: {
+    // 检查是否有这样的配置，将其删除或注释掉
+    react: "React",
+    "react-dom": "ReactDOM",
+    lodash: "_"
   },
   // watch: true,
   context: path.resolve(__dirname, "src"),
@@ -40,6 +47,20 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /isarray\.js/,
+        use: [
+          {
+            loader: "expose-loader",
+            options: {
+              exposes: {
+                globalName: "isarray",
+                override: true, // window 如果有覆盖
+              }
+            }
+          }
+        ]
+      },
       {
         test: /.css$/, //匹配 css和less 文件
         use: [
@@ -108,6 +129,9 @@ module.exports = {
     ],
   },
   plugins: [
+
+    new WebpackBar(),
+
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "public", "index.html"),
       // chunks: ['all']
@@ -117,7 +141,13 @@ module.exports = {
 
     new webpack.DefinePlugin({
       'process.env.N_ENV': JSON.stringify(process.env.N_ENV)
-    })
+    }),
+
+    // 每个 tsx 文件自动引入 import isarray from 'isarray';
+    // 建议和  expose-loader 取其中一个
+    // new webpack.ProvidePlugin({
+    //   isarray: "isarray"
+    // })
   ],
 };
 

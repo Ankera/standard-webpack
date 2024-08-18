@@ -1,6 +1,9 @@
+import isarray from './isarray';
+import _ from 'lodash';
 import styles from '@/index.css';
 
 console.log('styles', styles)
+console.log('isarray', isarray([]))
 
 const div = document.createElement('div')
 

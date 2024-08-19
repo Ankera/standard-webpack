@@ -5,10 +5,18 @@ body {
   /* background: url(~image/demo.png); */
 }
 
+#root {
+  font-size: 18px;
+}
+
 .someClass {
   color: red;
   font-size: 24px;
   transition: all 0.3s;
   transform: rotate(0deg);
   display: flex;
+}
+
+.wrap {
+  color: beige;
 }

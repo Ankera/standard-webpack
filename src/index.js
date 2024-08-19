@@ -1,6 +1,9 @@
 
 // import _ from 'lodash';
+// import isarray from './isarray';
 // import styles from '@/index.css';
+
+// console.log("isarray======", isarray([]))
 
 // console.log('styles', styles)
 
@@ -21,6 +24,8 @@
 
 // const sum = (a, b) => a + b;
 
-// sum(1, 2)
+import title from './title';
+import title2 from './title2'
 
-console.log([1,2,3].find(e => e === 1))
+console.log("========title", title)
+console.log("========title2", title2)

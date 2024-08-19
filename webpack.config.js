@@ -1,13 +1,36 @@
 const path = require("path");
+const os = require('os');
 const webpack = require("webpack");
 const WebpackBar = require("webpackbar");
+const CopyPlugin = require('copy-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const { PurgeCSSPlugin } = require("purgecss-webpack-plugin");
+const glob = require("glob");
+const { cache } = require("webpack");
+
+const PATHS = {
+  src: path.join(__dirname, "src"),
+};
+
+const CUPS = os.cpus()
+
+const isDev = process.env.NODE_ENV === 'development' // 是否是开发模式
+console.log("========= isDev =========", isDev, path.resolve('src'))
 
 module.exports = {
+  // mode: isDev ? "development" : "production",
   mode: "development",
   devtool: "source-map",
   entry: {
-    main: "./index.js",
+    main: "./src/index.js",
+  },
+  cache: {
+    type: 'filesystem', // 
+    cacheDirectory: path.resolve(__dirname, 'cache')
   },
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -22,10 +45,25 @@ module.exports = {
     lodash: "_"
   },
   // watch: true,
-  context: path.resolve(__dirname, "src"),
+  // context: path.resolve(__dirname, "src"),
   // target: 'web' // web node
   // resolve: {},
   // external: {},
+  optimization: {
+    // usedExports: true
+    minimizer: isDev ? [] : [
+      new CssMinimizerPlugin(), // 压缩css
+
+      new TerserPlugin({ // 压缩js
+        parallel: true, // 开启多线程压缩
+        terserOptions: {
+          compress: {
+            pure_funcs: ["console.log"] // 删除console.log
+          }
+        }
+      }),
+    ],
+  },
   devServer: {
     host: "localhost", // 启动服务器域名
     port: "3000", // 启动服务器端口号
@@ -42,9 +80,10 @@ module.exports = {
     extensions: [".jsx", ".js", ".tsx", ".ts", ".json"],
     alias: {
       "@": path.join(__dirname, "./src"),
+      components: path.resolve(__dirname, 'src/components'),
       // 'common-variables': path.resolve(__dirname, 'common/css/variable.less'),
     },
-    modules: [path.resolve("node_modules")], // 指定去本项目 node_modules 查找模块，不允许向上查找，全局
+    // modules: [path.resolve("node_modules")], // 指定去本项目 node_modules 查找模块，不允许向上查找，全局
   },
   // 找loader的解析路径
   // resolveLoader: {
@@ -60,7 +99,7 @@ module.exports = {
           {
             loader: 'thread-loader',
             options: {
-              workers: 3
+              workers: typeof CUPS !== 'undefined' ? CUPS.length : 1
             }
           },
           {
@@ -89,7 +128,8 @@ module.exports = {
       {
         test: /.css$/, //匹配 css和less 文件
         use: [
-          "style-loader",
+          // "style-loader",
+          isDev ? 'style-loader' : MiniCssExtractPlugin.loader, // 开发环境使用style-looader,打包模式抽离css
           {
             loader: "css-loader",
             // exclude: path.resolve(__dirname, 'src/styles/global'),
@@ -102,9 +142,12 @@ module.exports = {
             options: {
               // url: false,
               // import: false,
+
               modules: true,
-              // sourceMap: true,
               esModule: false,
+
+              // sourceMap: true,
+             
               // importLoaders: 0
             },
           },
@@ -179,7 +222,35 @@ module.exports = {
     new webpack.IgnorePlugin({
         contextRegExp: /moment$/,
         resourceRegExp: /locale/
-    })
+    }),
+
+    new MiniCssExtractPlugin({
+      filename: '[name].css' // 抽离css的输出目录和名称
+    }),
+
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, './public'), // 复制public下文件
+          to: path.resolve(__dirname, './dist'), // 复制到dist目录中
+          filter: source => {
+            return !source.includes('index.html') // 忽略index.html
+          }
+        },
+      ],
+    }),
+
+    /**
+     * 合并多余文件 "./src/title.js": function() {}
+     * 
+     * 生产  var title = "hello title";
+     *      var src_title = (title);
+     * 
+     */
+    new webpack.optimize.ModuleConcatenationPlugin(),
+    // new PurgeCSSPlugin({
+    //   paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }),
+    // })
   ],
 };
 

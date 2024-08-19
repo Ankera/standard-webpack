@@ -4,8 +4,11 @@
  */
 
 module.exports = {
+  // options: {
+  //   cacheDirectory: true, // 打包的缓存起来
+  // },
   // 执行顺序由右往左,所以先处理ts,再处理jsx,最后再试一下babel转换为低版本语法
-  "presets": [
+  presets: [
     [
       "@babel/preset-env", // 默认只能转换ES6语法
       {

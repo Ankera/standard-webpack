@@ -10,7 +10,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const { PurgeCSSPlugin } = require("purgecss-webpack-plugin");
 const glob = require("glob");
-const { cache } = require("webpack");
 
 const PATHS = {
   src: path.join(__dirname, "src"),
@@ -37,6 +36,10 @@ module.exports = {
     // filename: 'bundle.[hash:5].js',
     clean: true, // webpack4需要配置clean-webpack-plugin来删除dist文件,webpack5内置了
     publicPath: "/",
+
+    filename: 'umd-deals.js',
+    library: 'MyLibrary',  // 模块名称，在使用 UMD 时对外暴露的变量名
+    libraryTarget: 'umd', 
   },
   externals: {
     // 检查是否有这样的配置，将其删除或注释掉
@@ -109,7 +112,8 @@ module.exports = {
             //   presets: ["@babel/preset-react", "@babel/preset-typescript"],
             // },
           },
-        ]
+        ],
+        exclude: /node_modules/
       },
       {
         test: /isarray\.js/,
